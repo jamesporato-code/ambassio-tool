@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ambassia — Ton futur client est déjà étudiant</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ─── RESET & TOKENS ─── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+:root {
+  --bg:      #0C0C0C;
+  --s1:      #141414;
+  --s2:      #1C1C1C;
+  --s3:      #222222;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --white:   #EDE9E1;
+  --muted:   #555;
+  --muted2:  #999;
+  --red:     #FF3B1F;
+  --amber:   #F5A623;
+  --green:   #00C875;
+  --blue:    #4A9EFF;
+  --r-sm:    8px;
+  --r-md:    12px;
+  --r-lg:    16px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* grain overlay */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .45;
+}
+
+/* ─── UTILITIES ─── */
+.hidden { display: none !important; }
+
+/* ─── SCREENS ─── */
+#screen-intro,
+#screen-loader,
+#screen-dash { min-height: 100vh; }
+
+/* ═══════════════════════════════════════
+   INTRO SCREEN
+═══════════════════════════════════════ */
+#screen-intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  position: relative;
+}
+
+#screen-intro::before {
+  content: '';
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,59,31,.055) 0%, transparent 70%);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.intro-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.intro-eyebrow::before,
+.intro-eyebrow::after { content: ''; width: 28px; height: 1px; background: var(--red); opacity: .5; }
+
+.intro-h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(40px, 6.5vw, 76px);
+  line-height: 1.0;
+  letter-spacing: -3px;
+  color: var(--white);
+  margin-bottom: 22px;
+  max-width: 800px;
+}
+
+.intro-h1 em {
+  font-style: normal;
+  color: var(--red);
+}
+
+.intro-sub {
+  font-size: 16px;
+  color: var(--muted2);
+  font-weight: 300;
+  line-height: 1.7;
+  max-width: 460px;
+  margin: 0 auto 48px;
+}
+
+/* form card */
+.form-card {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 36px 40px;
+  width: 100%;
+  max-width: 520px;
+  text-align: left;
+}
+
+.fg { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fg-full { grid-column: 1 / -1; }
+
+.f-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+
+input[type=text], select {
+  width: 100%;
+  padding: 11px 15px;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 14px;
+  color: var(--white);
+  outline: none;
+  transition: border-color .15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input:focus, select:focus { border-color: rgba(255,255,255,.3); }
+input::placeholder { color: #333; }
+select option { background: #1C1C1C; }
+
+.btn-submit {
+  width: 100%;
+  margin-top: 18px;
+  padding: 15px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  letter-spacing: .01em;
+}
+.btn-submit:hover { background: #e02e10; }
+.btn-submit:active { transform: scale(.99); }
+.btn-submit:disabled { background: #242424; color: #3A3A3A; cursor: not-allowed; transform: none; }
+
+/* ═══════════════════════════════════════
+   LOADER SCREEN
+═══════════════════════════════════════ */
+#screen-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.spin {
+  width: 48px; height: 48px;
+  border: 2px solid rgba(255,255,255,.05);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.load-msg { font-size: 13px; color: var(--muted); }
+.load-step { font-size: 12px; color: #333; min-height: 18px; transition: opacity .3s; }
+
+/* ═══════════════════════════════════════
+   DASHBOARD SCREEN
+═══════════════════════════════════════ */
+#screen-dash {
+  animation: fadeUp .5s ease both;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── Topbar ── */
+.topbar {
+  border-bottom: 1px solid var(--border);
+  padding: 20px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tb-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -.3px;
+  flex-shrink: 0;
+}
+.tb-logo span { color: var(--red); }
+
+.tb-center { flex: 1; text-align: center; }
+.tb-label { font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+.tb-company {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -.5px;
+}
+
+.btn-restart {
+  font-size: 12px; color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 7px 16px;
+  cursor: pointer;
+  font-family: 'Instrument Sans', sans-serif;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.btn-restart:hover { border-color: var(--border2); color: var(--white); }
+
+/* ── Layout ── */
+.dash-body {
+  padding: 36px 48px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ── Section label ── */
+.sec-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: -8px;
+}
+.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── Hero strip ── */
+.hero-strip {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  padding: 28px 32px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.hs-left { flex: 1; }
+.hs-eyebrow { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+.hs-headline {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(17px, 2.2vw, 24px);
+  line-height: 1.2;
+  letter-spacing: -.5px;
+  margin-bottom: 10px;
+}
+.hs-sub { font-size: 14px; color: var(--muted2); line-height: 1.7; font-weight: 300; }
+
+.hs-right { text-align: center; flex-shrink: 0; }
+.hs-big {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 64px;
+  line-height: 1;
+  letter-spacing: -4px;
+  color: var(--red);
+}
+.hs-big-lbl { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+
+/* ── 4 stat cards ── */
+.four-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.stat-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.sc-red::before   { background: var(--red); }
+.sc-amber::before { background: var(--amber); }
+.sc-green::before { background: var(--green); }
+.sc-blue::before  { background: var(--blue); }
+
+.stat-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  margin-bottom: 6px;
+}
+.stat-val.red   { color: var(--red); }
+.stat-val.amber { color: var(--amber); }
+.stat-val.green { color: var(--green); }
+.stat-val.blue  { color: var(--blue); }
+
+.stat-lbl { font-size: 12px; color: var(--muted2); line-height: 1.45; }
+.stat-src { font-size: 10px; color: #2E2E2E; margin-top: 7px; }
+
+/* ── 3-column panels ── */
+.three-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.panel {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-head {
+  padding: 13px 18px;
+  background: var(--s2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.ph-badge {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700;
+  flex-shrink: 0;
+}
+.ph-red   { background: rgba(255,59,31,.12);  color: var(--red); }
+.ph-amber { background: rgba(245,166,35,.12); color: var(--amber); }
+.ph-green { background: rgba(0,200,117,.10);  color: var(--green); }
+
+.ph-title { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted2); }
+
+.panel-body { padding: 18px; flex: 1; }
+
+/* Progress bar component */
+.prog-block { margin-bottom: 16px; }
+.prog-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.prog-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -.5px;
+  line-height: 1;
+}
+.prog-txt { font-size: 12px; color: var(--muted2); line-height: 1.4; flex: 1; }
+.prog-track {
+  height: 4px;
+  background: rgba(255,255,255,.05);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.prog-fill {
+  height: 100%;
+  border-radius: 3px;
+  width: 0%;
+  transition: width 1.4s cubic-bezier(.16,1,.3,1);
+}
+.prog-src { font-size: 10px; color: #2E2E2E; margin-top: 5px; }
+
+/* Insight box */
+.insight-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(255,59,31,.15);
+  background: rgba(255,59,31,.03);
+}
+.insight-box-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--red);
+  margin-bottom: 5px;
+}
+.insight-box-text { font-size: 13px; color: var(--muted2); line-height: 1.65; }
+
+/* Compare bars US/FR */
+.compare-block { margin-bottom: 14px; }
+.compare-row { display: flex; align-items: center; gap: 10px; margin-bottom: 3px; }
+.compare-flag { font-size: 14px; width: 22px; flex-shrink: 0; }
+.compare-track { flex: 1; height: 5px; background: rgba(255,255,255,.05); border-radius: 3px; overflow: hidden; }
+.compare-fill { height: 100%; border-radius: 3px; width: 0%; transition: width 1.4s cubic-bezier(.16,1,.3,1); }
+.compare-val { font-size: 12px; font-weight: 600; min-width: 32px; text-align: right; }
+.compare-sub { font-size: 11px; color: var(--muted); padding-left: 32px; line-height: 1.4; }
+
+/* Insight amber box */
+.insight-amber {
+  margin-top: 14px;
+  padding: 11px 13px;
+  border-radius: var(--r-sm);
+  border: 1px solid rgba(245,166,35,.18);
+  background: rgba(245,166,35,.04);
+}
+.insight-amber-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--amber);
+  margin-bottom: 5px;
+}
+.insight-amber-text { font-size: 12px; color: var(--muted2); line-height: 1.6; }
+.insight-src { font-size: 10px; color: #2E2E2E; margin-top: 6px; }
+
+/* Timeline */
+.tl { display: flex; flex-direction: column; }
+.tl-item { display: flex; gap: 12px; }
+.tl-spine { display: flex; flex-direction: column; align-items: center; width: 14px; flex-shrink: 0; }
+.tl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.tl-line { width: 1px; flex: 1; min-height: 20px; background: var(--border); margin: 3px 0; }
+.tl-year { font-size: 11px; font-weight: 600; color: var(--muted); min-width: 38px; padding-top: 1px; flex-shrink: 0; }
+.tl-content { font-size: 13px; color: var(--muted2); line-height: 1.6; padding-bottom: 14px; }
+.tl-content strong { color: var(--white); font-weight: 500; }
+
+/* ── 2-column bottom ── */
+.two-grid {
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  gap: 16px;
+}
+
+/* Benchmark table */
+.bench-panel {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.bench-table th {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--s2);
+}
+.bench-table td {
+  padding: 9px 12px;
+  border-bottom: .5px solid rgba(255,255,255,.04);
+  vertical-align: middle;
+}
+.bench-table tr:last-child td { border-bottom: none; }
+.bench-table tr:hover td { background: rgba(255,255,255,.018); }
+.bench-table td.dim { opacity: .4; }
+
+.brand-n { font-weight: 500; font-size: 12px; color: var(--white); }
+.brand-n.dim-text { color: var(--muted); font-style: italic; }
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pill-us  { background: rgba(74,158,255,.1);  color: #4A9EFF; border: 1px solid rgba(74,158,255,.2); }
+.pill-ok  { background: rgba(0,200,117,.08);  color: #00C875; border: 1px solid rgba(0,200,117,.2); }
+.pill-no  { background: rgba(255,255,255,.04); color: var(--muted); border: 1px solid var(--border); }
+
+.bench-note {
+  padding: 9px 12px;
+  font-size: 10px;
+  color: #2E2E2E;
+  border-top: 1px solid var(--border);
+  background: var(--s2);
+}
+
+/* Right column stack */
+.right-col { display: flex; flex-direction: column; gap: 16px; }
+
+/* Ad blindness card */
+.blind-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.blind-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.blind-cell {
+  padding: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.blind-cell:first-child { border-right: 1px solid var(--border); }
+
+.blind-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 48px;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-bottom: 4px;
+}
+.blind-lbl { font-size: 12px; color: var(--muted2); line-height: 1.45; }
+.blind-src { font-size: 10px; color: #2E2E2E; margin-top: 5px; }
+.blind-note {
+  padding: 13px 16px;
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.65;
+}
+
+/* Opportunity card */
+.opp-card {
+  background: var(--s1);
+  border: 1px solid rgba(255,59,31,.2);
+  border-radius: var(--r-lg);
+  padding: 22px;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+}
+.opp-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--red);
+}
+.opp-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 17px;
+  letter-spacing: -.4px;
+  line-height: 1.2;
+  margin-bottom: 16px;
+}
+.opp-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.6;
+}
+.opp-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+.opp-footer {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,59,31,.15);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* ── CTA bar ── */
+.cta-bar {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-lg);
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.cta-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  letter-spacing: -.4px;
+  margin-bottom: 5px;
+}
+.cta-sub { font-size: 13px; color: var(--muted2); font-weight: 300; line-height: 1.5; }
+.cta-btns { display: flex; gap: 10px; flex-shrink: 0; }
+
+.btn-primary {
+  padding: 12px 26px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.btn-primary:hover { background: #e02e10; }
+
+.btn-ghost {
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--muted2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-sm);
+  font-family: 'Instrument Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-ghost:hover { color: var(--white); border-color: var(--white); }
+
+/* ── Source note ── */
+.source-note {
+  padding: 13px 16px;
+  background: rgba(255,255,255,.015);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  font-size: 11px;
+  color: #333;
+  line-height: 1.75;
+}
+.source-note strong { color: #3E3E3E; }
+
+/* ── Footer ── */
+.dash-footer {
+  border-top: 1px solid var(--border);
+  padding: 20px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.dash-footer p { font-size: 11px; color: #2A2A2A; }
+.dash-footer a { color: var(--red); text-decoration: none; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .four-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .topbar,
+  .dash-body,
+  .dash-footer { padding-left: 20px; padding-right: 20px; }
+
+  .three-grid { grid-template-columns: 1fr; }
+  .two-grid   { grid-template-columns: 1fr; }
+  .four-grid  { grid-template-columns: 1fr 1fr; }
+
+  .hero-strip { flex-direction: column; }
+  .hs-right { display: none; }
+
+  .cta-bar { flex-direction: column; align-items: flex-start; }
+  .form-card { padding: 24px 20px; }
+  .fg { grid-template-columns: 1fr; }
+  .blind-val { font-size: 38px; }
+}
+
+@media (max-width: 500px) {
+  .four-grid { grid-template-columns: 1fr; }
+  .blind-grid { grid-template-columns: 1fr; }
+  .blind-cell:first-child { border-right: none; border-bottom: 1px solid var(--border); }
+}
+
+@media print {
+  #screen-intro, #screen-loader, .btn-restart, .btn-submit, .cta-btns { display: none !important; }
+  body { background: #fff; color: #000; }
+  .dash-body { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════
+     INTRO SCREEN
+════════════════════════════ -->
+<section id="screen-intro">
+  <p class="intro-eyebrow">Ambassia — Rapport gratuit</p>
+  <h1 class="intro-h1">Ton futur client<br>est <em>déjà étudiant</em></h1>
+  <p class="intro-sub">Entre ta marque. On te montre ce que ça signifie concrètement — avec des données vérifiées et sourcées.</p>
+
+  <div class="form-card">
+    <div class="fg">
+      <div class="fg-full">
+        <label class="f-label" for="i-brand">Nom de ta marque</label>
+        <input type="text" id="i-brand" placeholder="ex: Doctolib, Back Market, Yuka…" autocomplete="off">
+      </div>
+      <div>
+        <label class="f-label" for="i-secteur">Secteur</label>
+        <select id="i-secteur">
+          <option value="">Choisir…</option>
+          <option value="fintech">Fintech / Banque</option>
+          <option value="sante">Santé / Medtech</option>
+          <option value="ecommerce">E-commerce</option>
+          <option value="food">Food & Boisson</option>
+          <option value="mobilite">Mobilité</option>
+          <option value="media">Média / Entertainment</option>
+          <option value="mode">Mode / Beauté</option>
+          <option value="rh">RH / Emploi</option>
+          <option value="saas">SaaS / Tech</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div>
+        <label class="f-label" for="i-age">Âge moyen de vos clients</label>
+        <select id="i-age">
+          <option value="18-25">18–25 ans</option>
+          <option value="25-35" selected>25–35 ans</option>
+          <option value="35-50">35–50 ans</option>
+          <option value="50+">50 ans et +</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-submit" id="btn-submit" onclick="startGenerate()">Voir mon rapport →</button>
+  </div>
+</section>
+
+<!-- ════════════════════════════
+     LOADER SCREEN
+════════════════════════════ -->
+<section id="screen-loader" class="hidden">
+  <div class="spin"></div>
+  <p class="load-msg">Analyse en cours…</p>
+  <p class="load-step" id="load-step"></p>
+</section>
+
+<!-- ════════════════════════════
+     DASHBOARD SCREEN
+════════════════════════════ -->
+<section id="screen-dash" class="hidden">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-logo">Ambass<span>ia</span></div>
+    <div class="tb-center">
+      <div class="tb-label">Rapport Gen Z pour</div>
+      <div class="tb-company" id="d-company">—</div>
+    </div>
+    <button class="btn-restart" onclick="restart()">← Recommencer</button>
+  </div>
+
+  <!-- Body -->
+  <div class="dash-body">
+
+    <!-- Hero -->
+    <div class="hero-strip" id="d-hero"></div>
+
+    <!-- 4 stats sourcées -->
+    <p class="sec-label">Données vérifiées & sourcées</p>
+    <div class="four-grid">
+      <div class="stat-card sc-red">
+        <div class="stat-val red">11 000<span style="font-size:18px;letter-spacing:0;"> Mds€</span></div>
+        <div class="stat-lbl">Pouvoir d'achat Gen Z mondial d'ici 2030</div>
+        <div class="stat-src">NielsenIQ & World Data Lab, 2024 (~$12T converti)</div>
+      </div>
+      <div class="stat-card sc-amber">
+        <div class="stat-val amber">12,1M</div>
+        <div class="stat-lbl">Consommateurs Gen Z en France — 18% de la population</div>
+        <div class="stat-src">NielsenIQ France, oct. 2025</div>
+      </div>
+      <div class="stat-card sc-green">
+        <div class="stat-val green">3,01M</div>
+        <div class="stat-lbl">Étudiants dans l'enseignement supérieur en France</div>
+        <div class="stat-src">Ministère de l'Ens. Supérieur, 2024-2025</div>
+      </div>
+      <div class="stat-card sc-blue">
+        <div class="stat-val blue">27%</div>
+        <div class="stat-lbl">De la force de travail mondiale sera Gen Z en 2025</div>
+        <div class="stat-src">World Economic Forum, 2024</div>
+      </div>
+    </div>
+
+    <!-- 3 panels -->
+    <p class="sec-label">Les 3 réalités à comprendre</p>
+    <div class="three-grid">
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-badge ph-red">1</div>
+          <div class="ph-title">Le poids de la Gen Z</div>
+        </div>
+        <div class="panel-body" id="p1"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-badge ph-amber">2</div>
+          <div class="ph-title">Le retard français</div>
+        </div>
+        <div class="panel-body" id="p2"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="ph-badge ph-green">3</div>
+          <div class="ph-title">La fenêtre se ferme</div>
+        </div>
+        <div class="panel-body" id="p3"></div>
+      </div>
+    </div>
+
+    <!-- Bottom 2-col -->
+    <p class="sec-label">Ce que les US ont compris — et que la France ignore</p>
+    <div class="two-grid">
+
+      <!-- Benchmark table -->
+      <div class="bench-panel">
+        <div class="panel-head">
+          <div class="ph-badge ph-amber" style="font-size:9px;letter-spacing:.04em;width:28px;border-radius:6px;">US/FR</div>
+          <div class="ph-title">Benchmark campus ambassador programs</div>
+        </div>
+        <table class="bench-table">
+          <thead>
+            <tr>
+              <th>Marque</th>
+              <th>Pays</th>
+              <th>Programme (données vérifiées)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="brand-n">Red Bull</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>4 000+ Student Marketeers mondiaux</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">Amazon Prime</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>Campus Managers — programme national</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">Spotify</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>1M étudiants touchés, 11M impressions</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">Adidas</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>40 conversations/semaine par ambassadeur</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">GrubHub</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>150 000 nouveaux clients en 2 ans</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">Notion</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>Campus Ambassadors dans 50+ universités</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">Tinder / Bumble</span></td>
+              <td><span class="pill pill-us">🇺🇸 US</span></td>
+              <td>Campus Reps — events & activation terrain</td>
+            </tr>
+            <tr>
+              <td><span class="brand-n">Red Bull France</span></td>
+              <td><span class="pill pill-ok">🇫🇷 ✓</span></td>
+              <td>Student Marketeers (marque autrichienne)</td>
+            </tr>
+            <tr>
+              <td class="dim"><span class="brand-n dim-text">Doctolib</span></td>
+              <td class="dim"><span class="pill pill-no">🇫🇷 —</span></td>
+              <td class="dim" style="font-style:italic;color:var(--muted);">Aucun programme documenté</td>
+            </tr>
+            <tr>
+              <td class="dim"><span class="brand-n dim-text">Back Market</span></td>
+              <td class="dim"><span class="pill pill-no">🇫🇷 —</span></td>
+              <td class="dim" style="font-style:italic;color:var(--muted);">Aucun programme documenté</td>
+            </tr>
+            <tr>
+              <td class="dim"><span class="brand-n dim-text">Alan</span></td>
+              <td class="dim"><span class="pill pill-no">🇫🇷 —</span></td>
+              <td class="dim" style="font-style:italic;color:var(--muted);">Aucun programme documenté</td>
+            </tr>
+            <tr>
+              <td class="dim"><span class="brand-n dim-text">Lydia / Swile</span></td>
+              <td class="dim"><span class="pill pill-no">🇫🇷 —</span></td>
+              <td class="dim" style="font-style:italic;color:var(--muted);">Aucun programme documenté</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="bench-note">Benchmark Ambassia, mars 2026 — 25+ marques US documentées · 0 startup française du Top 40 French Tech · Sources : Wasserman Next Gen, The Campus Agency, SocialLadder, sites officiels</div>
+      </div>
+
+      <!-- Right column -->
+      <div class="right-col">
+
+        <!-- Ad blindness -->
+        <div class="blind-card">
+          <div class="panel-head">
+            <div class="ph-badge ph-red" style="font-size:14px;background:rgba(255,59,31,.12);">!</div>
+            <div class="ph-title">Pourquoi le digital ne suffit plus</div>
+          </div>
+          <div class="blind-grid">
+            <div class="blind-cell">
+              <div class="blind-val" style="color:var(--red);">72%</div>
+              <div class="blind-lbl">des Gen Z utilisent un adblocker sur au moins un appareil</div>
+              <div class="blind-src">Insider Intelligence, 2024</div>
+            </div>
+            <div class="blind-cell">
+              <div class="blind-val" style="color:var(--amber);">63%</div>
+              <div class="blind-lbl">des 18-34 ans utilisent un adblocker — la tranche la plus élevée</div>
+              <div class="blind-src">GlobalWebIndex, 2024</div>
+            </div>
+          </div>
+          <div class="blind-note">La Gen Z n'est pas inatteignable — elle est imperméable aux formats traditionnels. Le contact humain, pair-à-pair, sur son terrain : c'est ce qui passe.</div>
+        </div>
+
+        <!-- Opportunity -->
+        <div class="opp-card" id="d-opp"></div>
+
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-bar">
+      <div>
+        <div class="cta-title">Ambassia active ce canal pour toi.</div>
+        <div class="cta-sub">Des étudiants-ambassadeurs formés, déployés sur les campus de ta ville. Opérationnel en 7 jours.</div>
+      </div>
+      <div class="cta-btns">
+        <a class="btn-primary" href="https://calendly.com/james-porato-ambassia/30min" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center;gap:8px;">
+          Réserver un appel gratuit →
+        </a>
+      </div>
+    </div>
+
+    <!-- Source note -->
+    <div class="source-note">
+      <strong>Sources vérifiées :</strong> NielsenIQ & World Data Lab (Spend Z, 2024) · Ministère de l'Enseignement Supérieur (2024-2025) · World Economic Forum · OC&C / Viuz · Insider Intelligence & GlobalWebIndex (2024) · Benchmark Ambassia réalisé en mars 2026 via Wasserman Next Gen, The Campus Agency, SocialLadder, BrandChamp et sites officiels des marques. <br>
+      <span style="color:#3E3E3E;">Les montants affichés en euros sont des conversions des données originales en dollars (taux indicatif ~0,92 USD/EUR, mars 2026). Les insights sectoriels et opportunités sont générés par IA et constituent des estimations Ambassia.</span>
+    </div>
+
+  </div>
+
+  <footer class="dash-footer">
+    <p>Propulsé par <a href="https://ambassia.net" target="_blank" rel="noopener">Ambassia</a> — le canal d'acquisition Gen Z via les campus français</p>
+    <p>Données vérifiées · Rapport personnalisé · Outil gratuit</p>
+  </footer>
+
+</section>
+
+<!-- ════════════════════════════
+     JAVASCRIPT
+════════════════════════════ -->
+<script>
+/* ── Loader steps ── */
+const STEPS = [
+  'Analyse du secteur…',
+  'Calcul de la projection Gen Z…',
+  'Contextualisation des données…',
+  'Génération du rapport personnalisé…'
+];
+
+/* ── Sector data (hardcoded, defensible) ── */
+const SD = {
+  fintech:   { pct: 52 },
+  sante:     { pct: 43 },
+  ecommerce: { pct: 58 },
+  food:      { pct: 61 },
+  mobilite:  { pct: 63 },
+  media:     { pct: 68 },
+  mode:      { pct: 65 },
+  rh:        { pct: 72 },
+  saas:      { pct: 56 },
+  autre:     { pct: 48 }
+};
+
+/* ── Screen helpers ── */
+function showOnly(id) {
+  ['screen-intro','screen-loader','screen-dash'].forEach(s => {
+    document.getElementById(s).classList.toggle('hidden', s !== id);
+  });
+}
+
+/* ── Animate bars ── */
+function animateBars() {
+  setTimeout(() => {
+    document.querySelectorAll('[data-w]').forEach(el => {
+      el.style.width = el.dataset.w + '%';
+    });
+  }, 200);
+}
+
+/* ── Main generate ── */
+async function startGenerate() {
+  const brand   = document.getElementById('i-brand').value.trim();
+  const secteur = document.getElementById('i-secteur').value;
+  const age     = document.getElementById('i-age').value;
+
+  if (!brand)   { document.getElementById('i-brand').focus();   return; }
+  if (!secteur) { document.getElementById('i-secteur').focus(); return; }
+
+  document.getElementById('btn-submit').disabled = true;
+  showOnly('screen-loader');
+
+  /* Step ticker */
+  let si = 0;
+  const stepEl = document.getElementById('load-step');
+  stepEl.textContent = STEPS[0];
+  const iv = setInterval(() => {
+    si = Math.min(si + 1, STEPS.length - 1);
+    stepEl.textContent = STEPS[si];
+  }, 950);
+
+  const sd = SD[secteur] || SD.autre;
+
+  const prompt = `Tu es expert en stratégie Gen Z et marketing campus en France.
+
+Génère un rapport personnalisé pour :
+- Marque : ${brand}
+- Secteur : ${secteur}
+- Âge moyen clients : ${age} ans
+
+RÈGLES STRICTES :
+1. N'invente PAS de statistiques chiffrées. Si tu mentionnes un chiffre, il doit être connu ou clairement marqué "estimation".
+2. Garde un ton factuel, percutant, honnête.
+3. Les estimations sectorielles doivent être introduites par "Estimation :" ou "Selon les tendances".
+
+Réponds UNIQUEMENT en JSON valide, sans markdown, sans backticks :
+
+{
+  "headline": "<phrase de conviction personnalisée pour ${brand}, max 12 mots, percutante>",
+  "headline_sub": "<sous-titre 1 phrase, sans chiffres inventés, factuel>",
+  "col1_insight": "<insight concret sur la Gen Z dans le secteur ${secteur} — comportement, influence, loyauté — 2-3 phrases, factuel>",
+  "col2_insight": "<ce que les marques US ont compris dans ce secteur que les françaises n'ont pas encore fait — 2-3 phrases>",
+  "urgence_1": "<ce qui se passe pour ${brand} en 2025-2026 si rien n'est fait sur la Gen Z — 1 phrase>",
+  "urgence_2": "<conséquence aggravée en 2027 — 1 phrase>",
+  "urgence_3": "<point de non-retour 2028+ — 1 phrase forte>",
+  "opp_titre": "<titre court, format : L'opportunité [adjectif] pour ${brand}>",
+  "opp_1": "<opportunité campus concrète 1 pour ${brand}>",
+  "opp_2": "<opportunité campus concrète 2>",
+  "opp_3": "<opportunité campus concrète 3>",
+  "opp_4": "<opportunité 4, estimée si chiffrée — préciser 'Estimation :' si chiffre>"
+}`;
+
+  try {
+    const res = await fetch('/.netlify/functions/claude', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    const data = await res.json();
+    clearInterval(iv);
+
+    if (!data.content || !data.content[0]) throw new Error('Empty response');
+    const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
+    const r = JSON.parse(raw);
+
+    renderDash(brand, secteur, age, sd, r);
+
+  } catch (err) {
+    clearInterval(iv);
+    showOnly('screen-intro');
+    document.getElementById('btn-submit').disabled = false;
+    console.error(err);
+    alert('Une erreur est survenue. Vérifie ta connexion et réessaie.');
+  }
+}
+
+/* ── Render dashboard ── */
+function renderDash(brand, secteur, age, sd, r) {
+  document.getElementById('d-company').textContent = brand;
+
+  /* Hero */
+  document.getElementById('d-hero').innerHTML = `
+    <div class="hs-left">
+      <div class="hs-eyebrow">Rapport personnalisé · ${brand} · ${new Date().toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="hs-headline">${r.headline}</div>
+      <div class="hs-sub">${r.headline_sub}</div>
+    </div>
+    <div class="hs-right">
+      <div class="hs-big">~${sd.pct}%</div>
+      <div class="hs-big-lbl">de vos clients potentiels<br>seront Gen Z d'ici 2030<br><span style="font-size:9px;opacity:.4;">(estimation sectorielle Ambassia)</span></div>
+    </div>
+  `;
+
+  /* Panel 1 – poids */
+  document.getElementById('p1').innerHTML = `
+    <div class="prog-block">
+      <div class="prog-row">
+        <div class="prog-val" style="color:var(--red);font-size:16px;letter-spacing:-.5px;">2 500 Mds€</div>
+        <div class="prog-txt">pouvoir d'achat Gen Z aujourd'hui (2024)</div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="background:var(--red);" data-w="22"></div></div>
+      <div class="prog-src">NielsenIQ & World Data Lab, 2024 (~$2,7T converti)</div>
+    </div>
+    <div class="prog-block">
+      <div class="prog-row">
+        <div class="prog-val" style="color:var(--amber);font-size:16px;letter-spacing:-.5px;">11 000 Mds€</div>
+        <div class="prog-txt">pouvoir d'achat Gen Z en 2030</div>
+      </div>
+      <div class="prog-track"><div class="prog-fill" style="background:var(--amber);" data-w="75"></div></div>
+      <div class="prog-src">NielsenIQ & World Data Lab, 2024 (~$12T converti)</div>
+    </div>
+    <div class="insight-box">
+      <div class="insight-box-label">Dans ton secteur</div>
+      <div class="insight-box-text">${r.col1_insight}</div>
+    </div>
+  `;
+
+  /* Panel 2 – retard US/FR */
+  document.getElementById('p2').innerHTML = `
+    <div class="compare-block">
+      <div class="compare-row">
+        <span class="compare-flag">🇺🇸</span>
+        <div class="compare-track"><div class="compare-fill" style="background:var(--green);" data-w="87"></div></div>
+        <span class="compare-val" style="color:var(--green);">25+</span>
+      </div>
+      <div class="compare-sub">Marques US avec programme campus documenté</div>
+    </div>
+    <div class="compare-block">
+      <div class="compare-row">
+        <span class="compare-flag">🇫🇷</span>
+        <div class="compare-track"><div class="compare-fill" style="background:var(--red);" data-w="4"></div></div>
+        <span class="compare-val" style="color:var(--red);">0</span>
+      </div>
+      <div class="compare-sub">Startups françaises Top 40 French Tech avec programme équivalent</div>
+    </div>
+    <div class="insight-amber">
+      <div class="insight-amber-label">Ce que les US ont compris</div>
+      <div class="insight-amber-text">${r.col2_insight}</div>
+      <div class="insight-src">Benchmark Ambassia, mars 2026 · Wasserman Next Gen, The Campus Agency, SocialLadder</div>
+    </div>
+  `;
+
+  /* Panel 3 – urgence */
+  document.getElementById('p3').innerHTML = `
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-spine">
+          <div class="tl-dot" style="background:var(--amber);"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-year">2025</div>
+        <div class="tl-content">${r.urgence_1}</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-spine">
+          <div class="tl-dot" style="background:var(--red);"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-year">2027</div>
+        <div class="tl-content">${r.urgence_2}</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-spine">
+          <div class="tl-dot" style="background:#FF2200;box-shadow:0 0 6px rgba(255,34,0,.5);"></div>
+        </div>
+        <div class="tl-year">2028+</div>
+        <div class="tl-content"><strong>${r.urgence_3}</strong></div>
+      </div>
+    </div>
+  `;
+
+  /* Opportunity */
+  document.getElementById('d-opp').innerHTML = `
+    <div class="opp-title">${r.opp_titre}</div>
+    <div class="opp-item"><div class="opp-dot"></div><span>${r.opp_1}</span></div>
+    <div class="opp-item"><div class="opp-dot"></div><span>${r.opp_2}</span></div>
+    <div class="opp-item"><div class="opp-dot"></div><span>${r.opp_3}</span></div>
+    <div class="opp-item"><div class="opp-dot"></div><span>${r.opp_4}</span></div>
+    <div class="opp-footer">Ambassia construit ce canal en France — <a href="https://calendly.com/james-porato-ambassia/30min" target="_blank" rel="noopener" style="color:var(--red);text-decoration:none;">Réserver un appel gratuit →</a></div>
+  `;
+
+  showOnly('screen-dash');
+  animateBars();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Restart ── */
+function restart() {
+  showOnly('screen-intro');
+  document.getElementById('btn-submit').disabled = false;
+  document.getElementById('i-brand').value = '';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Enter key on form ── */
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('screen-intro') && !document.getElementById('screen-intro').classList.contains('hidden')) {
+    startGenerate();
+  }
+});
+</script>
+</body>
+</html>
